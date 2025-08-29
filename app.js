@@ -40,8 +40,10 @@ function getBotReply(message) {
     return "Sorry, I didn’t understand that. Please ask something else.";
   }
 }
+
+
 document.getElementById("user-input").addEventListener("keypress", function(event) {
   if (event.key === "Enter") {
-    markAttendance(); // Call declarative function
+    sendMessage(); 
   }
 });
