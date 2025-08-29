@@ -1,4 +1,4 @@
-function sendMessage() {
+async function sendMessage() {
   const input = document.getElementById("user-input");
   const message = input.value.trim();
   if (message === "") return;
@@ -11,12 +11,15 @@ function sendMessage() {
   userMsg.innerText = message;
   chatBox.appendChild(userMsg);
 
-  // Get bot response
-  const botResponse = getBotReply(message);
+  // Show loading text while waiting for API
   const botMsg = document.createElement("div");
   botMsg.className = "bot-msg";
-  botMsg.innerText = botResponse;
+  botMsg.innerText = "Thinking...";
   chatBox.appendChild(botMsg);
+
+  // Get bot response (API call)
+  const botResponse = await getBotReply(message);
+  botMsg.innerText = botResponse;
 
   // Scroll to bottom
   chatBox.scrollTop = chatBox.scrollHeight;
@@ -25,23 +28,27 @@ function sendMessage() {
   input.value = "";
 }
 
-function getBotReply(message) {
+async function getBotReply(message) {
   message = message.toLowerCase();
 
-  if (message.includes("hello") || message.includes("hi")) {
+  if (message.includes("attendance")) {
+    try {
+      let res = await fetch("http://localhost:5000/api/attendance"); // Example API
+      let data = await res.json();
+      return `Your attendance is ${data.percentage}% (${data.present} days present).`;
+    } catch (error) {
+      return "Error fetching attendance data. Please try again later.";
+    }
+  } else if (message.includes("hello") || message.includes("hi")) {
     return "Hello! How can I help you today?";
-  } else if (message.includes("attendance")) {
-    return "You can view your attendance by clicking 'View Attendance' tab.";
-  } else if (message.includes("mark")) {
-    return "To mark attendance, go to the 'Mark Attendance' section.";
-  } else if (message.includes("download") || message.includes("report")) {
-    return "You can download the attendance report from the 'Download' page.";
+  } else if (message.includes("download")) {
+    return "You can download your attendance report from the portal.";
   } else {
-    return "Sorry, I didn’t understand that. Please ask something else.";
+    return "Sorry, I didn’t understand that.";
   }
 }
 
-
+// ✅ Event listener
 document.getElementById("user-input").addEventListener("keypress", function(event) {
   if (event.key === "Enter") {
     sendMessage(); 
